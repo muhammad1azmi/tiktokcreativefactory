@@ -148,8 +148,14 @@ export async function POST(request: NextRequest) {
             sendStatus(controller, encoder, `${variantCount} image(s) generated successfully!`, 90);
             sendStatus(controller, encoder, "Preparing for preview...", 95);
 
+            // Log result details for debugging
+            console.log("[API] Results ready:", results.length, "images");
+            results.forEach((r, i) => {
+              console.log(`[API] Result ${i + 1}: filePath length = ${r.filePath.length}, mimeType = ${r.mimeType}`);
+            });
+
             // Send final result - array of all images
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            const resultPayload = {
               result: results.length === 1 ? results[0].filePath : results.map(r => r.filePath),
               metadata: {
                 type: "image",
@@ -159,7 +165,13 @@ export async function POST(request: NextRequest) {
                 aspectRatio: config.aspectRatio || "9:16",
                 downloadUrl: results.length === 1 ? results[0].filePath : results[0].filePath,
               }
-            })}\n\n`));
+            };
+
+            const payloadString = JSON.stringify(resultPayload);
+            console.log("[API] Sending result payload, size:", payloadString.length, "bytes");
+
+            controller.enqueue(encoder.encode(`data: ${payloadString}\n\n`));
+            console.log("[API] Result payload sent successfully");
 
           } catch (error) {
             console.error("[API] Image generation error:", error);

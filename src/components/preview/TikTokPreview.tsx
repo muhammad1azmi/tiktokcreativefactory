@@ -46,16 +46,28 @@ export function TikTokPreview({
         if (!currentDownloadUrl) return;
 
         try {
-            const response = await fetch(currentDownloadUrl);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName || `tiktok_${type}_${currentIndex + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            // Check if it's a data URL (starts with "data:")
+            if (currentDownloadUrl.startsWith("data:")) {
+                // Data URL - can download directly
+                const a = document.createElement("a");
+                a.href = currentDownloadUrl;
+                a.download = fileName || `tiktok_${type}_${currentIndex + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                // Regular URL - need to fetch first
+                const response = await fetch(currentDownloadUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName || `tiktok_${type}_${currentIndex + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
         } catch (error) {
             console.error("Download failed:", error);
         }
@@ -66,16 +78,27 @@ export function TikTokPreview({
             const url = downloadUrlArray[i];
             if (!url) continue;
             try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = blobUrl;
-                a.download = `tiktok_${type}_${i + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(blobUrl);
-                document.body.removeChild(a);
+                if (url.startsWith("data:")) {
+                    // Data URL - can download directly
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `tiktok_${type}_${i + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } else {
+                    // Regular URL - need to fetch first
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = blobUrl;
+                    a.download = `tiktok_${type}_${i + 1}_${Date.now()}.${type === "image" ? "png" : "mp4"}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(blobUrl);
+                    document.body.removeChild(a);
+                }
                 // Small delay between downloads
                 await new Promise(resolve => setTimeout(resolve, 300));
             } catch (error) {
@@ -214,8 +237,8 @@ export function TikTokPreview({
                             key={idx}
                             onClick={() => setCurrentIndex(idx)}
                             className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex
-                                    ? "bg-[var(--primary)] w-4"
-                                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                                ? "bg-[var(--primary)] w-4"
+                                : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                                 }`}
                         />
                     ))}
