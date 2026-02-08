@@ -67,52 +67,67 @@ export function DashboardTabs() {
             const decoder = new TextDecoder();
 
             if (reader) {
+                let buffer = ""; // Buffer for incomplete chunks
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n").filter((line) => line.startsWith("data: "));
+                    buffer += decoder.decode(value, { stream: true });
 
-                    for (const line of lines) {
-                        try {
-                            const data = JSON.parse(line.replace("data: ", ""));
-                            if (data.status) {
-                                setGenerationStatus({
-                                    status: "generating",
-                                    message: data.status,
-                                    progress: data.progress,
-                                });
-                                setStatusHistory((prev) => [...prev, data.status]);
-                            }
-                            if (data.result) {
-                                // Handle both single result and array of results
-                                const resultContent = data.result;
-                                const metadata = data.metadata;
+                    // Split by double newline (SSE message separator)
+                    const messages = buffer.split("\n\n");
+                    // Keep the last incomplete message in buffer
+                    buffer = messages.pop() || "";
 
-                                if (metadata?.files && metadata.files.length > 1) {
-                                    // Multiple images generated
-                                    const filePaths = metadata.files.map((f: { filePath: string }) => f.filePath);
-                                    setPreviewContent(filePaths);
-                                    setDownloadUrl(filePaths);
-                                } else {
-                                    // Single result
-                                    setPreviewContent(Array.isArray(resultContent) ? resultContent[0] : resultContent);
-                                    setDownloadUrl(metadata?.downloadUrl || (Array.isArray(resultContent) ? resultContent[0] : resultContent));
+                    for (const message of messages) {
+                        const lines = message.split("\n").filter((line) => line.startsWith("data: "));
+
+                        for (const line of lines) {
+                            try {
+                                const jsonStr = line.replace("data: ", "");
+                                console.log("[Frontend] Received SSE line, length:", jsonStr.length);
+                                const data = JSON.parse(jsonStr);
+
+                                if (data.status) {
+                                    setGenerationStatus({
+                                        status: "generating",
+                                        message: data.status,
+                                        progress: data.progress,
+                                    });
+                                    setStatusHistory((prev) => [...prev, data.status]);
                                 }
-                                setFileName(metadata?.fileName);
-                                setGenerationStatus({
-                                    status: "complete",
-                                    message: metadata?.count > 1
-                                        ? `${metadata.count} images generated!`
-                                        : "Generation complete!"
-                                });
+                                if (data.result) {
+                                    console.log("[Frontend] Got result data!");
+                                    // Handle both single result and array of results
+                                    const resultContent = data.result;
+                                    const metadata = data.metadata;
+
+                                    if (metadata?.files && metadata.files.length > 1) {
+                                        // Multiple images generated
+                                        const filePaths = metadata.files.map((f: { filePath: string }) => f.filePath);
+                                        console.log("[Frontend] Setting", filePaths.length, "images");
+                                        setPreviewContent(filePaths);
+                                        setDownloadUrl(filePaths);
+                                    } else {
+                                        // Single result
+                                        setPreviewContent(Array.isArray(resultContent) ? resultContent[0] : resultContent);
+                                        setDownloadUrl(metadata?.downloadUrl || (Array.isArray(resultContent) ? resultContent[0] : resultContent));
+                                    }
+                                    setFileName(metadata?.fileName);
+                                    setGenerationStatus({
+                                        status: "complete",
+                                        message: metadata?.count > 1
+                                            ? `${metadata.count} images generated!`
+                                            : "Generation complete!"
+                                    });
+                                }
+                                if (data.error) {
+                                    setGenerationStatus({ status: "error", message: data.error });
+                                }
+                            } catch (e) {
+                                console.error("[Frontend] Parse error:", e);
                             }
-                            if (data.error) {
-                                setGenerationStatus({ status: "error", message: data.error });
-                            }
-                        } catch {
-                            // Ignore parse errors for incomplete chunks
                         }
                     }
                 }
