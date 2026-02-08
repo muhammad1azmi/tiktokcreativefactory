@@ -218,32 +218,28 @@ export async function generateVideo(params: VideoGenerationParams): Promise<Gene
         const fileName = generateFileName("video", "mp4");
         const videoFile = generatedVideo.video!;
 
-        // Get video as base64 data URL for cloud deployment compatibility
-        let dataUrl: string;
+        // Use SDK download (handles authentication) then convert to base64
+        // This works on all cloud platforms
+        const outputDir = ensureOutputDir();
+        const filePath = path.join(outputDir, fileName);
 
-        if (videoFile.uri) {
-            // Fetch video from Veo's temporary URI
-            console.log("[GenAI] Fetching video from URI:", videoFile.uri);
-            const response = await fetch(videoFile.uri);
-            const arrayBuffer = await response.arrayBuffer();
-            const base64 = Buffer.from(arrayBuffer).toString("base64");
-            dataUrl = `data:video/mp4;base64,${base64}`;
-            console.log("[GenAI] Video data URL created, length:", dataUrl.length);
-        } else {
-            // Fallback: download to temp, read, and convert
-            console.log("[GenAI] No URI available, using file download fallback");
-            const outputDir = ensureOutputDir();
-            const filePath = path.join(outputDir, fileName);
-            await client.files.download({
-                file: videoFile,
-                downloadPath: filePath,
-            });
-            console.log("[GenAI] Video saved:", filePath);
+        console.log("[GenAI] Downloading video using SDK (authenticated)...");
+        await client.files.download({
+            file: videoFile,
+            downloadPath: filePath,
+        });
+        console.log("[GenAI] Video downloaded:", filePath);
 
-            // Read and convert to base64
-            const videoData = fs.readFileSync(filePath);
-            dataUrl = `data:video/mp4;base64,${videoData.toString("base64")}`;
-            console.log("[GenAI] Converted to data URL, length:", dataUrl.length);
+        // Read file and convert to base64 data URL
+        const videoData = fs.readFileSync(filePath);
+        const dataUrl = `data:video/mp4;base64,${videoData.toString("base64")}`;
+        console.log("[GenAI] Converted to data URL, length:", dataUrl.length);
+
+        // Clean up temp file (optional, helps with disk space)
+        try {
+            fs.unlinkSync(filePath);
+        } catch {
+            // Ignore cleanup errors
         }
 
         return {
