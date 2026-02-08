@@ -61,6 +61,7 @@ function generateFileName(type: "image" | "video", extension: string): string {
 
 /**
  * Generate images using Gemini (Nano Banana Pro)
+ * Returns base64 data URL for Vercel compatibility (no filesystem access)
  */
 export async function generateImage(params: ImageGenerationParams): Promise<GenerationResult> {
     const { prompt, referenceImages } = params;
@@ -108,19 +109,20 @@ export async function generateImage(params: ImageGenerationParams): Promise<Gene
                 if (part.inlineData?.mimeType?.startsWith("image/")) {
                     console.log("[GenAI] Found image!");
 
-                    const outputDir = ensureOutputDir();
+                    const mimeType = part.inlineData.mimeType;
+                    const base64Data = part.inlineData.data!;
                     const fileName = generateFileName("image", "png");
-                    const filePath = path.join(outputDir, fileName);
 
-                    const imageData = Buffer.from(part.inlineData.data!, "base64");
-                    fs.writeFileSync(filePath, imageData);
-                    console.log("[GenAI] Saved:", filePath);
+                    // Return base64 data URL (works on Vercel - no filesystem needed)
+                    const dataUrl = `data:${mimeType};base64,${base64Data}`;
+
+                    console.log("[GenAI] Returning data URL, length:", dataUrl.length);
 
                     return {
                         type: "image",
-                        filePath: `/generated/${fileName}`,
+                        filePath: dataUrl,  // This is now a data URL, not a file path
                         fileName,
-                        mimeType: part.inlineData.mimeType,
+                        mimeType,
                     };
                 }
 
