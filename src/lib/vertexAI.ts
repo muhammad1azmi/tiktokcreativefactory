@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, VideoGenerationReferenceType } from "@google/genai";
 import fs from "fs";
 import path from "path";
 
@@ -709,18 +709,22 @@ export async function generateVideo(params: VideoGenerationParams): Promise<Gene
         if (anchorImages && anchorImages.length > 0) {
             console.log(`[GenAI] Using ${anchorImages.length} reference image(s) for video generation`);
             // Image-to-video generation with up to 3 reference images
-            // Veo 3.1 supports multiple reference images
+            // Veo 3.1 uses config.referenceImages with referenceType: "asset" for multiple images
             const referenceImages = anchorImages.slice(0, 3).map(img => ({
-                imageBytes: img.toString("base64"),
-                mimeType: "image/png",
+                image: {
+                    imageBytes: img.toString("base64"),
+                    mimeType: "image/png",
+                },
+                referenceType: VideoGenerationReferenceType.ASSET,
             }));
+
+            console.log(`[GenAI] Passing ${referenceImages.length} reference images to Veo 3.1 via config.referenceImages`);
 
             operation = await client.models.generateVideos({
                 model: VIDEO_MODEL,
                 prompt: prompt,
-                // Use first image as primary, pass additional context in prompt
-                image: referenceImages[0],
                 config: {
+                    referenceImages: referenceImages,
                     aspectRatio: aspectRatio,
                 },
             });

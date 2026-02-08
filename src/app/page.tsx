@@ -2,9 +2,18 @@
 
 import { motion } from "framer-motion";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
-import { Sparkles, Zap } from "lucide-react";
+import { Sparkles, Zap, LogOut, User } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { LoginPage } from "@/components/auth/LoginPage";
 
 export default function Home() {
+  const { isAuthenticated, username, logout } = useAuth();
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="min-h-screen gradient-bg">
       {/* Header */}
@@ -39,12 +48,26 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-3"
             >
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-xs text-muted-foreground">AI Ready</span>
               </div>
+
+              {/* User Info & Logout */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+                <User className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs text-foreground/80">{username}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="text-xs">Logout</span>
+              </button>
             </motion.div>
           </div>
         </div>
