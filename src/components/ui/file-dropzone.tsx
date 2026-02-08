@@ -13,6 +13,8 @@ interface FileDropzoneProps {
     sublabel?: string;
     icon?: "image" | "video";
     className?: string;
+    /** Offset for image numbering - useful when multiple dropzones feed into the same API call */
+    indexOffset?: number;
 }
 
 export function FileDropzone({
@@ -23,6 +25,7 @@ export function FileDropzone({
     sublabel = "or click to browse",
     icon = "image",
     className,
+    indexOffset = 0,
 }: FileDropzoneProps) {
     const [files, setFiles] = useState<File[]>([]);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -66,6 +69,32 @@ export function FileDropzone({
         },
         [files, onFilesChange]
     );
+
+    // Drag to reorder functionality
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+    const handleDragStart = useCallback((index: number) => {
+        setDraggedIndex(index);
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
+
+        // Reorder files
+        const newFiles = [...files];
+        const draggedFile = newFiles[draggedIndex];
+        newFiles.splice(draggedIndex, 1);
+        newFiles.splice(index, 0, draggedFile);
+
+        setFiles(newFiles);
+        onFilesChange(newFiles);
+        setDraggedIndex(index);
+    }, [draggedIndex, files, onFilesChange]);
+
+    const handleDragEnd = useCallback(() => {
+        setDraggedIndex(null);
+    }, []);
 
     const Icon = icon === "video" ? Film : ImageIcon;
 
@@ -123,22 +152,33 @@ export function FileDropzone({
                             <motion.div
                                 key={`${file.name}-${index}`}
                                 initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                                animate={{ opacity: draggedIndex === index ? 0.5 : 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
-                                className="relative group aspect-square rounded-lg overflow-hidden bg-muted"
+                                draggable
+                                onDragStart={() => handleDragStart(index)}
+                                onDragOver={(e) => handleDragOver(e, index)}
+                                onDragEnd={handleDragEnd}
+                                className={cn(
+                                    "relative group aspect-square rounded-lg overflow-hidden bg-muted cursor-grab active:cursor-grabbing",
+                                    draggedIndex === index && "ring-2 ring-[var(--primary)]"
+                                )}
                             >
                                 {file.type.startsWith("image/") ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={URL.createObjectURL(file)}
                                         alt={file.name}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover pointer-events-none"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <Film className="w-8 h-8 text-muted-foreground" />
                                     </div>
                                 )}
+                                {/* Image order badge - shows the LLM reference order */}
+                                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-black text-xs font-bold shadow-lg">
+                                    #{index + 1 + indexOffset}
+                                </div>
                                 <button
                                     onClick={() => removeFile(index)}
                                     className="absolute top-1 right-1 p-1 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"

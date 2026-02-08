@@ -255,19 +255,19 @@ export function TikTokPreview({
                 >
                     <Button
                         onClick={handleDownload}
-                        className="w-full max-w-[300px] mx-auto block bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-black font-semibold hover:opacity-90 transition-opacity"
+                        className="w-full max-w-[300px] mx-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-black font-semibold hover:opacity-90 transition-opacity"
                     >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download {type === "image" ? "Image" : "Video"} {contentArray.length > 1 ? `(${currentIndex + 1}/${contentArray.length})` : ""}
+                        <Download className="w-4 h-4" />
+                        <span>Download {type === "image" ? "Image" : "Video"} {contentArray.length > 1 ? `(${currentIndex + 1}/${contentArray.length})` : ""}</span>
                     </Button>
                     {contentArray.length > 1 && (
                         <Button
                             onClick={handleDownloadAll}
                             variant="outline"
-                            className="w-full max-w-[300px] mx-auto block border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
+                            className="w-full max-w-[300px] mx-auto flex items-center justify-center gap-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10"
                         >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download All ({contentArray.length} images)
+                            <Download className="w-4 h-4" />
+                            <span>Download All ({contentArray.length} images)</span>
                         </Button>
                     )}
                 </motion.div>

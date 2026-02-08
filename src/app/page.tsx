@@ -27,10 +27,10 @@ export default function Home() {
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold gradient-text">
+                <h1 className="text-xl font-bold gradient-text tracking-tight">
                   TikTok Creative Factory
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground tracking-wide">
                   AI-Powered Content Generation
                 </p>
               </div>
@@ -58,11 +58,11 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <h2 className="text-3xl font-bold mb-2">
+          <h2 className="text-3xl font-bold mb-3 tracking-tight">
             Create Viral{" "}
             <span className="gradient-text">TikTok Content</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl">
+          <p className="text-muted-foreground max-w-2xl text-[15px] leading-relaxed">
             Upload your product images and let AI generate scroll-stopping content
             optimized for TikTok's algorithm. Choose from trending creative styles
             and watch your brand come alive.
@@ -75,12 +75,12 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border/50 mt-16">
         <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between text-[13px] text-muted-foreground">
+            <div className="flex items-center gap-2.5">
               <Sparkles className="w-4 h-4 text-[var(--primary)]" />
-              <span>Powered by Google ADK + Gemini</span>
+              <span className="font-medium">Powered by Google ADK + Gemini</span>
             </div>
-            <p>© 2026 TikTok Creative Factory</p>
+            <p className="opacity-75">© 2026 TikTok Creative Factory</p>
           </div>
         </div>
       </footer>

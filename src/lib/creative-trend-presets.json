@@ -1,0 +1,22 @@
+{
+    "presets": [
+        {
+            "id": "product-promotion-shot",
+            "name": "Product Promotion Shot",
+            "description": "High-impact e-commerce ready visuals",
+            "prompt": "Create a high-impact product promotion shot optimized for TikTok and social commerce. Features:\n- Hero product placement with dramatic lighting\n- Clean, distraction-free background with subtle depth\n- Professional color grading that emphasizes product details\n- E-commerce ready composition with space for text overlays\n- Scroll-stopping visual hierarchy"
+        },
+        {
+            "id": "studio-ghibli-style",
+            "name": "Studio Ghibli Style",
+            "description": "Dreamy watercolor anime aesthetics",
+            "prompt": "Create in Studio Ghibli animation style with:\n- Soft watercolor aesthetics and dreamy landscapes\n- Whimsical character design with expressive features\n- Magical realism atmosphere with fantastical elements\n- Hand-painted textures and organic brush strokes\n- Nostalgic, heartwarming color palette with warm earth tones and soft pastels\n- Detailed natural environments with wind and light effects"
+        },
+        {
+            "id": "diy-ai-figure",
+            "name": "DIY AI Figure",
+            "description": "Collectible figurine/action figure look",
+            "prompt": "Create a collectible AI art figure aesthetic:\n- 3D rendered figurine/action figure presentation\n- Clean studio lighting with soft shadows\n- Collectible toy packaging aesthetic\n- Glossy/matte material contrast\n- Character design with stylized proportions\n- Display-ready pose and composition\n- Premium collectible product photography style"
+        }
+    ]
+}

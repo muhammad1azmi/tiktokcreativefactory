@@ -44,15 +44,19 @@ export function DashboardTabs() {
             data.productImages.forEach((file, i) => formData.append(`productImage_${i}`, file));
             if (data.lookAndFeelImage) formData.append("lookAndFeel", data.lookAndFeelImage);
             formData.append("config", JSON.stringify({
-                trendType: data.selectedTrend,
                 brandGuidelines: data.brandGuidelines,
                 primaryColor: data.primaryColor,
                 secondaryColor: data.secondaryColor,
-                useAIStoryline: data.useAIStoryline,
                 aspectRatio: data.aspectRatio,
                 variantCount: data.variantCount,
                 varianceFactors: data.varianceFactors,
                 protocolType: "IMAGE",
+                // Structured prompt fields
+                useImageInteraction: data.useImageInteraction,
+                imageInteractionDescription: data.imageInteractionDescription,
+                creativeTrendType: data.creativeTrendType,
+                selectedPreset: data.selectedPreset,
+                aiTrendDescription: data.aiTrendDescription,
             }));
 
             const response = await fetch("/api/generate", {
@@ -156,14 +160,21 @@ export function DashboardTabs() {
             // Append up to 3 reference images with indexed keys
             data.anchorImages.forEach((file, i) => formData.append(`anchorImage_${i}`, file));
             formData.append("config", JSON.stringify({
-                trendType: data.selectedTrend,
+                protocolType: "VIDEO",
+                trendType: data.selectedVideoPreset || "fast-product-showcase",
                 brandGuidelines: data.brandGuidelines,
                 primaryColor: data.primaryColor,
                 secondaryColor: data.secondaryColor,
                 narrative: data.narrative,
+                narrativeTemplate: data.narrativeTemplate,
                 videoLength: data.videoLength,
                 aspectRatio: data.aspectRatio,
-                protocolType: "VIDEO",
+                // New video structured prompt fields
+                imagePurposes: data.imagePurposes,
+                customPurposeDescriptions: data.customPurposeDescriptions,
+                videoCreativeTrendType: data.creativeTrendType,
+                selectedVideoPreset: data.selectedVideoPreset,
+                aiVideoTrendDescription: data.aiVideoTrendDescription,
             }));
 
             const response = await fetch("/api/generate", {
@@ -256,14 +267,14 @@ export function DashboardTabs() {
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 mb-6">
                         <TabsTrigger
                             value="image"
-                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-black transition-all"
+                            className="flex items-center gap-2.5 text-[13px] font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--primary)] data-[state=active]:to-[var(--secondary)] data-[state=active]:text-black data-[state=active]:font-semibold transition-all"
                         >
                             <Image className="w-4 h-4" />
                             Image Slideshow
                         </TabsTrigger>
                         <TabsTrigger
                             value="video"
-                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--secondary)] data-[state=active]:to-[var(--accent)] data-[state=active]:text-white transition-all"
+                            className="flex items-center gap-2.5 text-[13px] font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[var(--secondary)] data-[state=active]:to-[var(--accent)] data-[state=active]:text-white data-[state=active]:font-semibold transition-all"
                         >
                             <Film className="w-4 h-4" />
                             Video Loop
@@ -305,9 +316,9 @@ export function DashboardTabs() {
             <div className="space-y-6">
                 {/* Preview Card */}
                 <Card className="glass border-border/50 p-6">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <h3 className="text-base font-semibold mb-4 flex items-center gap-2.5">
                         <span className="gradient-text">TikTok Preview</span>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px] font-medium">
                             Safe Zone
                         </Badge>
                     </h3>
@@ -338,7 +349,7 @@ export function DashboardTabs() {
                             <StatusIcon className={`w-5 h-5 ${statusColor}`} />
                         </motion.div>
                         <div className="flex-1">
-                            <p className={`font-medium ${statusColor}`}>
+                            <p className={`text-[13px] font-semibold ${statusColor}`}>
                                 {generationStatus.message}
                             </p>
                             {generationStatus.progress !== undefined && (
@@ -356,7 +367,7 @@ export function DashboardTabs() {
                     {/* Status History */}
                     {statusHistory.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-border/50 max-h-32 overflow-y-auto">
-                            <p className="text-xs text-muted-foreground mb-2">Activity Log:</p>
+                            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Activity Log:</p>
                             {statusHistory.map((status, i) => (
                                 <p key={i} className="text-xs text-muted-foreground/70 py-0.5">
                                     • {status}

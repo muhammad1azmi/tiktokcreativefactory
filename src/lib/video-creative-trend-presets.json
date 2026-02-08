@@ -1,0 +1,52 @@
+{
+    "presets": [
+        {
+            "id": "studio-ghibli-animation",
+            "name": "Studio Ghibli Animation",
+            "description": "Dreamy animation with magical particle effects",
+            "prompt": "Create in Studio Ghibli animation style with smooth character animation, dreamy landscapes, whimsical movement, and magical particle effects. Focus on one key moment of wonder. Soft watercolor aesthetics with hand-painted textures. Nostalgic, heartwarming atmosphere with gentle light effects. Optimized for 8-second format - capture a single magical moment."
+        },
+        {
+            "id": "fast-product-showcase",
+            "name": "Fast Product Showcase",
+            "description": "Dynamic camera movements with feature highlights",
+            "prompt": "Generate a fast-paced product showcase with dynamic camera movements, quick feature highlights, energetic pacing, and modern motion graphics. Pack visual impact into 8 seconds. Use smooth orbiting shots, quick cuts between angles, and geometric transitions. Every frame should communicate product value. Professional studio lighting with high contrast."
+        },
+        {
+            "id": "asmr-satisfying",
+            "name": "ASMR Satisfying",
+            "description": "Smooth movements with mesmerizing loops",
+            "prompt": "Create a satisfying ASMR-style video with smooth, deliberate movements, close-up details, gentle pacing, and mesmerizing repetitive actions compressed into a hypnotic loop. Focus on textures, materials, and tactile satisfaction. Slow, intentional camera movements. Perfect for looping - design ending to flow back to beginning seamlessly."
+        },
+        {
+            "id": "before-after-transform",
+            "name": "Before/After Transform",
+            "description": "Snappy transformation with impactful reveal",
+            "prompt": "Generate a snappy before/after transformation with clear starting point, smooth transition, and impactful reveal within tight 8-second timeframe. Quick cuts preferred. Structure: 0-2s establish 'before', 2-5s transformation action, 5-8s reveal 'after' with satisfying payoff. High energy, scroll-stopping visual contrast."
+        },
+        {
+            "id": "vlog-authentic",
+            "name": "Vlog Authentic Moment",
+            "description": "Handheld camera feel with genuine energy",
+            "prompt": "Create authentic vlog-style content with handheld camera feel, natural movements, genuine moments, and relatable energy. Capture slice-of-life authenticity in condensed 8-second narrative. Natural lighting, casual framing, eye-level perspective. Feels spontaneous and unscripted. Perfect for single continuous shot with no cuts."
+        },
+        {
+            "id": "cinematic-epic",
+            "name": "Cinematic Epic",
+            "description": "Hollywood-style dramatic shots",
+            "prompt": "Create cinematic, Hollywood-style video with dramatic camera movements, epic scale, professional color grading, and impactful slow-motion moments. 8-second format demands immediate impact - start with action already in progress. Mix of wide establishing shots and close-up details. Anamorphic lens feel with subtle lens flares."
+        },
+        {
+            "id": "kinetic-typography",
+            "name": "Kinetic Typography",
+            "description": "Dynamic text animations with movement",
+            "prompt": "Generate kinetic typography style video with dynamic text animations, bold movements, and engaging visual rhythm. Text elements should animate in sync with implied audio beats. Modern motion graphics aesthetic with clean geometric shapes. High contrast colors, sharp edges, impactful timing. Pack multiple text reveals into 8-second format."
+        },
+        {
+            "id": "premium-unboxing",
+            "name": "Premium Unboxing",
+            "description": "Luxurious product reveal experience",
+            "prompt": "Create a premium unboxing experience with luxurious reveal moments, anticipation building, and satisfying packaging interactions. 8-second format requires condensed but impactful sequence. Dramatic lighting on product surfaces, close-up texture details, smooth lid opening or unwrapping motion. ASMR-adjacent with focus on material quality and craftsmanship."
+        }
+    ]
+}
