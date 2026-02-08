@@ -143,7 +143,6 @@ export async function generateImage(params: ImageGenerationParams): Promise<Gene
 /**
  * Generate video using Veo 3.1
  * Uses async polling since video generation takes time
- * Returns base64 data URL for Vercel compatibility
  */
 export async function generateVideo(params: VideoGenerationParams): Promise<GenerationResult> {
     const { prompt, anchorImages, aspectRatio = "9:16" } = params;
@@ -216,48 +215,21 @@ export async function generateVideo(params: VideoGenerationParams): Promise<Gene
         }
 
         const generatedVideo = operation.response.generatedVideos[0];
+        const outputDir = ensureOutputDir();
         const fileName = generateFileName("video", "mp4");
+        const filePath = path.join(outputDir, fileName);
 
-        // Get video as base64 for Vercel compatibility
-        // The video object should have a uri we can fetch
-        const videoFile = generatedVideo.video!;
+        // Download and save the video
+        await client.files.download({
+            file: generatedVideo.video!,
+            downloadPath: filePath,
+        });
 
-        // Try to get the video data as base64
-        let dataUrl: string;
-
-        // Check if we have a URI to fetch from
-        if (videoFile.uri) {
-            console.log("[GenAI] Fetching video from URI:", videoFile.uri);
-            const response = await fetch(videoFile.uri);
-            const arrayBuffer = await response.arrayBuffer();
-            const base64 = Buffer.from(arrayBuffer).toString("base64");
-            dataUrl = `data:video/mp4;base64,${base64}`;
-            console.log("[GenAI] Video data URL created, length:", dataUrl.length);
-        } else if (videoFile.videoBytes) {
-            // If we have the bytes directly
-            console.log("[GenAI] Using video bytes directly");
-            dataUrl = `data:video/mp4;base64,${videoFile.videoBytes}`;
-        } else {
-            // Fallback: try to download to temp and read (won't work on Vercel but useful for debugging)
-            console.log("[GenAI] Warning: No URI or bytes available, video may not display on Vercel");
-            const outputDir = ensureOutputDir();
-            const filePath = path.join(outputDir, fileName);
-            await client.files.download({
-                file: videoFile,
-                downloadPath: filePath,
-            });
-            // Read and convert to base64
-            const videoData = fs.readFileSync(filePath);
-            dataUrl = `data:video/mp4;base64,${videoData.toString("base64")}`;
-            // Clean up temp file
-            fs.unlinkSync(filePath);
-        }
-
-        console.log("[GenAI] Returning video data URL");
+        console.log("[GenAI] Video saved:", filePath);
 
         return {
             type: "video",
-            filePath: dataUrl,  // This is now a data URL
+            filePath: `/generated/${fileName}`,
             fileName,
             mimeType: "video/mp4",
         };
