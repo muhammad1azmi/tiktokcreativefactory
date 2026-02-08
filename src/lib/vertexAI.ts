@@ -215,21 +215,40 @@ export async function generateVideo(params: VideoGenerationParams): Promise<Gene
         }
 
         const generatedVideo = operation.response.generatedVideos[0];
-        const outputDir = ensureOutputDir();
         const fileName = generateFileName("video", "mp4");
-        const filePath = path.join(outputDir, fileName);
+        const videoFile = generatedVideo.video!;
 
-        // Download and save the video
-        await client.files.download({
-            file: generatedVideo.video!,
-            downloadPath: filePath,
-        });
+        // Get video as base64 data URL for cloud deployment compatibility
+        let dataUrl: string;
 
-        console.log("[GenAI] Video saved:", filePath);
+        if (videoFile.uri) {
+            // Fetch video from Veo's temporary URI
+            console.log("[GenAI] Fetching video from URI:", videoFile.uri);
+            const response = await fetch(videoFile.uri);
+            const arrayBuffer = await response.arrayBuffer();
+            const base64 = Buffer.from(arrayBuffer).toString("base64");
+            dataUrl = `data:video/mp4;base64,${base64}`;
+            console.log("[GenAI] Video data URL created, length:", dataUrl.length);
+        } else {
+            // Fallback: download to temp, read, and convert
+            console.log("[GenAI] No URI available, using file download fallback");
+            const outputDir = ensureOutputDir();
+            const filePath = path.join(outputDir, fileName);
+            await client.files.download({
+                file: videoFile,
+                downloadPath: filePath,
+            });
+            console.log("[GenAI] Video saved:", filePath);
+
+            // Read and convert to base64
+            const videoData = fs.readFileSync(filePath);
+            dataUrl = `data:video/mp4;base64,${videoData.toString("base64")}`;
+            console.log("[GenAI] Converted to data URL, length:", dataUrl.length);
+        }
 
         return {
             type: "video",
-            filePath: `/generated/${fileName}`,
+            filePath: dataUrl,  // Return data URL for cloud compatibility
             fileName,
             mimeType: "video/mp4",
         };
