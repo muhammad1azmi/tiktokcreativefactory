@@ -177,35 +177,49 @@ export function DashboardTabs() {
             const decoder = new TextDecoder();
 
             if (reader) {
+                let buffer = ""; // Buffer for incomplete chunks
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n").filter((line) => line.startsWith("data: "));
+                    buffer += decoder.decode(value, { stream: true });
 
-                    for (const line of lines) {
-                        try {
-                            const data = JSON.parse(line.replace("data: ", ""));
-                            if (data.status) {
-                                setGenerationStatus({
-                                    status: "generating",
-                                    message: data.status,
-                                    progress: data.progress,
-                                });
-                                setStatusHistory((prev) => [...prev, data.status]);
+                    // Split by double newline (SSE message separator)
+                    const messages = buffer.split("\n\n");
+                    // Keep the last incomplete message in buffer
+                    buffer = messages.pop() || "";
+
+                    for (const message of messages) {
+                        const lines = message.split("\n").filter((line) => line.startsWith("data: "));
+
+                        for (const line of lines) {
+                            try {
+                                const jsonStr = line.replace("data: ", "");
+                                console.log("[Frontend Video] Received SSE line, length:", jsonStr.length);
+                                const data = JSON.parse(jsonStr);
+
+                                if (data.status) {
+                                    setGenerationStatus({
+                                        status: "generating",
+                                        message: data.status,
+                                        progress: data.progress,
+                                    });
+                                    setStatusHistory((prev) => [...prev, data.status]);
+                                }
+                                if (data.result) {
+                                    console.log("[Frontend Video] Got result!");
+                                    setPreviewContent(data.result);
+                                    setDownloadUrl(data.metadata?.downloadUrl || data.result);
+                                    setFileName(data.metadata?.fileName);
+                                    setGenerationStatus({ status: "complete", message: "Video generated!" });
+                                }
+                                if (data.error) {
+                                    setGenerationStatus({ status: "error", message: data.error });
+                                }
+                            } catch (e) {
+                                console.error("[Frontend Video] Parse error:", e);
                             }
-                            if (data.result) {
-                                setPreviewContent(data.result);
-                                setDownloadUrl(data.metadata?.downloadUrl || data.result);
-                                setFileName(data.metadata?.fileName);
-                                setGenerationStatus({ status: "complete", message: "Video generated!" });
-                            }
-                            if (data.error) {
-                                setGenerationStatus({ status: "error", message: data.error });
-                            }
-                        } catch {
-                            // Ignore parse errors
                         }
                     }
                 }
