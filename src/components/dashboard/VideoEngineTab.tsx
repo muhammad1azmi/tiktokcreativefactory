@@ -572,13 +572,7 @@ DON'T:
                     )}
                 </Button>
             </motion.div>
-            {/* Pricing Note */}
-            <p className="text-center text-[13px] text-muted-foreground mt-3">
-                Est. cost: <span className="font-semibold text-foreground">
-                    ${(parseInt(hasReferenceImages ? "8" : videoLength) * 0.15).toFixed(2)}
-                </span>
-                <span className="text-xs ml-1.5 opacity-75">($0.15/sec · veo-3.1-generate-preview)</span>
-            </p>
+
         </motion.div>
     );
 }

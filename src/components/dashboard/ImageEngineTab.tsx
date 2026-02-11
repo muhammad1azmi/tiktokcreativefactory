@@ -444,11 +444,7 @@ export function ImageEngineTab({ onGenerate, isGenerating = false }: ImageEngine
                     )}
                 </Button>
             </motion.div>
-            {/* Pricing Note */}
-            <p className="text-center text-[13px] text-muted-foreground mt-3">
-                Est. cost: <span className="font-semibold text-foreground">${(variantCount[0] * 0.134).toFixed(2)}</span>
-                <span className="text-xs ml-1.5 opacity-75">($0.134/image · gemini-3-pro-image-preview)</span>
-            </p>
+
         </motion.div>
     );
 }
